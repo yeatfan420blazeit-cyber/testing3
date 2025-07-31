@@ -72,21 +72,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
+            if (entry.isIntersecting && !entry.target.hasAttribute('data-animated')) {
+                // Mark as animated to prevent re-animation
+                entry.target.setAttribute('data-animated', 'true');
+                
                 entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
+                
+                // Only apply transform to non-chart elements
+                if (!entry.target.classList.contains('chart-container')) {
+                    entry.target.style.transform = 'translateY(0)';
+                }
+                
                 animateNumber(entry.target);
+                
+                // Stop observing this element after animation
+                observer.unobserve(entry.target);
             }
         });
     }, observerOptions);
 
-    // Observe all stat cards
-    const statCards = document.querySelectorAll('.stat-card, .quick-stat, .platform-card');
+    // Observe all stat cards (excluding chart containers to prevent positioning bugs)
+    const statCards = document.querySelectorAll('.stat-card:not(.chart-container), .quick-stat, .platform-card:not(.chart-container)');
     statCards.forEach(card => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
         card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(card);
+    });
+
+    // Handle chart containers separately with a gentler animation
+    const chartContainers = document.querySelectorAll('.chart-container');
+    chartContainers.forEach(container => {
+        container.style.opacity = '0';
+        container.style.transition = 'opacity 1s ease';
+        observer.observe(container);
     });
 
     // Animate numbers in stat cards
@@ -172,6 +191,11 @@ document.addEventListener('DOMContentLoaded', function() {
         Chart.defaults.elements.arc.borderWidth = 0;
         Chart.defaults.elements.bar.borderRadius = 4;
         Chart.defaults.elements.line.tension = 0.4;
+        
+        // Ensure stable positioning for charts
+        Chart.defaults.responsive = true;
+        Chart.defaults.maintainAspectRatio = false;
+        Chart.defaults.resizeDelay = 100;
     }
 
     // Utility function to generate chart colors
@@ -207,6 +231,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (canvas && canvas.parentElement) {
             const container = canvas.parentElement;
             container.classList.add('chart-loading');
+            // Prevent any transforms during loading
+            container.style.transform = 'none';
         }
     };
 
@@ -215,6 +241,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (canvas && canvas.parentElement) {
             const container = canvas.parentElement;
             container.classList.remove('chart-loading');
+            // Ensure canvas is properly positioned after loading
+            setTimeout(() => {
+                if (canvas) {
+                    canvas.style.position = 'relative';
+                    canvas.style.transform = 'none';
+                }
+            }, 100);
         }
     };
 });
