@@ -7,11 +7,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Internet Penetration Chart
     const penetrationCtx = document.getElementById('penetrationChart');
+    let penetrationChart = null;
     if (penetrationCtx) {
         try {
             showChartLoading('penetrationChart');
             
-            const penetrationChart = new Chart(penetrationCtx, {
+            penetrationChart = new Chart(penetrationCtx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Connected', 'Not Connected'],
@@ -48,22 +49,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 plugins: [{
                     beforeDraw: function(chart) {
+                        if (!chart || !chart.ctx) return;
+                        
                         const width = chart.width;
                         const height = chart.height;
                         const ctx = chart.ctx;
                         
-                        ctx.restore();
-                        const fontSize = (height / 100).toFixed(2);
-                        ctx.font = fontSize + "em Inter";
+                        ctx.save();
+                        const fontSize = Math.max(12, (height / 120));
+                        ctx.font = fontSize + "px Inter, sans-serif";
                         ctx.fillStyle = '#1f2937';
                         ctx.textBaseline = "middle";
+                        ctx.textAlign = "center";
                         
                         const text = "64.4%";
-                        const textX = Math.round((width - ctx.measureText(text).width) / 2);
+                        const textX = width / 2;
                         const textY = height / 2;
                         
                         ctx.fillText(text, textX, textY);
-                        ctx.save();
+                        ctx.restore();
                     }
                 }]
             });
@@ -76,11 +80,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Device Usage Chart
     const deviceCtx = document.getElementById('deviceChart');
+    let deviceChart = null;
     if (deviceCtx) {
         try {
             showChartLoading('deviceChart');
             
-            const deviceChart = new Chart(deviceCtx, {
+            deviceChart = new Chart(deviceCtx, {
                 type: 'pie',
                 data: {
                     labels: ['Mobile', 'Desktop', 'Tablet'],
@@ -122,19 +127,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Store chart references globally for updates
+    window.penetrationChart = penetrationChart;
+    window.deviceChart = deviceChart;
+
     // Simulate real-time updates for charts
     function updateChartData() {
         // Add slight variations to simulate real-time data
         const variation = 0.1;
         
-        if (window.penetrationChart) {
+        if (window.penetrationChart && window.penetrationChart.data && window.penetrationChart.data.datasets[0]) {
             const currentValue = window.penetrationChart.data.datasets[0].data[0];
             const newValue = Math.max(60, Math.min(70, currentValue + (Math.random() - 0.5) * variation));
             window.penetrationChart.data.datasets[0].data = [newValue, 100 - newValue];
             window.penetrationChart.update('none');
         }
         
-        if (window.deviceChart) {
+        if (window.deviceChart && window.deviceChart.data && window.deviceChart.data.datasets[0]) {
             const mobile = window.deviceChart.data.datasets[0].data[0];
             const desktop = window.deviceChart.data.datasets[0].data[1];
             const tablet = window.deviceChart.data.datasets[0].data[2];
@@ -154,8 +163,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update charts every 60 seconds
     setInterval(updateChartData, 60000);
-    
-    // Store chart references globally for updates
-    window.penetrationChart = penetrationChart;
-    window.deviceChart = deviceChart;
 });

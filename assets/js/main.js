@@ -1,6 +1,29 @@
 // Main JavaScript functionality for Internet Statistics Hub
 
+// Global error handler
+window.addEventListener('error', function(e) {
+    console.error('JavaScript Error:', e.error);
+    return false;
+});
+
+// Ensure all required external libraries are loaded
+function checkDependencies() {
+    const dependencies = {
+        'Chart.js': typeof Chart !== 'undefined',
+        'Font Awesome': document.querySelector('link[href*="font-awesome"]') !== null
+    };
+    
+    for (const [name, loaded] of Object.entries(dependencies)) {
+        if (!loaded) {
+            console.warn(`${name} may not be loaded properly`);
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Check dependencies first
+    checkDependencies();
+    
     // Mobile navigation toggle
     const navToggle = document.querySelector('.nav-toggle');
     const navMenu = document.querySelector('.nav-menu');
@@ -16,6 +39,13 @@ document.addEventListener('DOMContentLoaded', function() {
             link.addEventListener('click', () => {
                 navMenu.classList.remove('active');
             });
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!navToggle.contains(e.target) && !navMenu.contains(e.target)) {
+                navMenu.classList.remove('active');
+            }
         });
     }
 
@@ -99,13 +129,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function formatNumber(num) {
         if (num >= 1000000000) {
-            return (num / 1000000000).toFixed(1) + ' Billion';
+            return (num / 1000000000).toFixed(1);
         }
         if (num >= 1000000) {
-            return (num / 1000000).toFixed(1) + ' Million';
+            return (num / 1000000).toFixed(1);
         }
         if (num >= 1000) {
-            return (num / 1000).toFixed(1) + 'K';
+            return (num / 1000).toFixed(1);
         }
         return num.toString();
     }
@@ -164,16 +194,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Error handling for charts
     window.handleChartError = function(error, chartId) {
         console.error('Error creating chart:', error);
-        const container = document.getElementById(chartId)?.parentElement;
-        if (container) {
-            container.innerHTML = '<p style="text-align: center; color: #ef4444;">Error loading chart data</p>';
+        const canvas = document.getElementById(chartId);
+        if (canvas && canvas.parentElement) {
+            const container = canvas.parentElement;
+            container.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; min-height: 200px;"><p style="text-align: center; color: #ef4444; font-weight: 500;">Chart temporarily unavailable</p></div>';
         }
     };
 
     // Show loading state for charts
     window.showChartLoading = function(chartId) {
         const canvas = document.getElementById(chartId);
-        if (canvas) {
+        if (canvas && canvas.parentElement) {
             const container = canvas.parentElement;
             container.classList.add('chart-loading');
         }
@@ -181,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.hideChartLoading = function(chartId) {
         const canvas = document.getElementById(chartId);
-        if (canvas) {
+        if (canvas && canvas.parentElement) {
             const container = canvas.parentElement;
             container.classList.remove('chart-loading');
         }

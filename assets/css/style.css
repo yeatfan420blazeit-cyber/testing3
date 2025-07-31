@@ -243,6 +243,8 @@ body {
     border-radius: var(--border-radius);
     padding: 2rem;
     box-shadow: var(--shadow-md);
+    min-height: 350px;
+    position: relative;
 }
 
 .chart-container.full-width {
@@ -560,6 +562,8 @@ body {
         text-align: center;
         transition: 0.3s;
         padding: 2rem 0;
+        z-index: 999;
+        box-shadow: var(--shadow-md);
     }
 
     .nav-menu.active {

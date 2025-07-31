@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (speedCtx) {
         try {
             new Chart(speedCtx, {
-                type: 'horizontalBar',
+                type: 'bar',
                 data: {
                     labels: ['Monaco', 'Singapore', 'Chile', 'Denmark', 'Thailand'],
                     datasets: [{
