@@ -5,6 +5,12 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
+    // Small delay to ensure DOM is fully stable before creating charts
+    setTimeout(initializeCharts, 100);
+});
+
+function initializeCharts() {
+
     // Internet Penetration Chart
     const penetrationCtx = document.getElementById('penetrationChart');
     let penetrationChart = null;
@@ -163,4 +169,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update charts every 60 seconds
     setInterval(updateChartData, 60000);
-});
+}

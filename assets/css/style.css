@@ -258,6 +258,14 @@ body {
     color: var(--text-primary);
 }
 
+/* Ensure chart canvases don't inherit transforms and are properly positioned */
+.chart-container canvas {
+    position: relative !important;
+    transform: none !important;
+    margin: 0 auto;
+    display: block;
+}
+
 /* Platform Cards */
 .platform-grid {
     display: grid;
@@ -633,11 +641,24 @@ body {
     }
 }
 
-.chart-container,
 .stat-card,
 .platform-card,
 .quick-stat {
     animation: fadeInUp 0.6s ease-out;
+}
+
+/* Chart containers get a gentler fade-in only animation */
+.chart-container {
+    animation: fadeIn 1s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 /* Loading animation for charts */
